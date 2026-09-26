@@ -1,0 +1,27 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Custom for Visual Studio
+*.cs     text eol=crlf
+
+# Source files
+*.java   text eol=lf
+*.kt      text eol=lf
+*.kts     text eol=lf
+*.xml     text eol=lf
+*.gradle  text eol=lf
+
+# Windows files should use CRLF
+*.bat    text eol=crlf
+
+# Binary files (should not be normalized)
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.keystore binary
+*.jks    binary
+
+# Scripts
+*.sh     text eol=lf
