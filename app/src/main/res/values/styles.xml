@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.AutoVisionClicker" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/surface_dark</item>
+        <item name="android:navigationBarColor">@color/surface_dark</item>
+        <item name="android:colorAccent">@color/accent_cyan</item>
+    </style>
+</resources>
