@@ -1,115 +1,74 @@
-import java.util.Properties
-
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
-// ============================================================
-// dependenciesInfo: ALWAYS disabled (privacy / store compliance).
-// ============================================================
-// The default (includeInApk = true) embeds a Google-encrypted
-// DEPENDENCY_INFO_BLOCK blob into the APK signing block.
-// IzzyOnDroid / F-Droid flag this blob during APK scans and
-// require it to be absent. Google Play does NOT need it either.
-// Setting both to false removes the blob and satisfies both stores.
-// See: https://izzyondroid.org/docs/general/AppInclusionPolicy/
-
 android {
-    namespace = "com.ahmedsamy.app"
-    compileSdk = 36
+    namespace = "com.autovision.clicker"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId = providers.gradleProperty("APP_ID").get()
-        minSdk = 26
-        targetSdk = 36
-        versionCode = providers.gradleProperty("VERSION_CODE").get().toInt()
-        versionName = providers.gradleProperty("VERSION_NAME").get()
-
-        resValue("string", "app_name", providers.gradleProperty("APP_NAME").get())
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    signingConfigs {
-        val props = Properties()
-        val signingFile = File(rootDir, "signing.properties")
-        if (signingFile.exists()) {
-            signingFile.inputStream().use { props.load(it) }
-            create("release") {
-                storeFile = file(props.getProperty("release.store.file"))
-                storePassword = props.getProperty("release.store.password")
-                keyAlias = props.getProperty("release.key.alias")
-                keyPassword = props.getProperty("release.key.password")
-            }
-        } else {
-            println("NOTE: signing.properties not found. See signing.properties.example for setup. Building unsigned APK.")
-        }
+        applicationId = "com.autovision.clicker"
+        minSdk = 29
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0.0"
     }
 
     buildTypes {
-        getByName("debug") {
-            // Keep debug builds fast and open
+        release {
             isMinifyEnabled = false
-            isShrinkResources = false
-            isDebuggable = true
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
-        }
-
-        getByName("release") {
-            // Optimize APK size using R8
-            isMinifyEnabled = true
-            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            isDebuggable = false
-
-            val signingFile = File(rootDir, "signing.properties")
-            if (signingFile.exists()) {
-                signingConfig = signingConfigs.getByName("release")
-            } else {
-                signingConfig = null
-            }
-
-            // ALWAYS disabled: removes the Google-encrypted DEPENDENCY_INFO_BLOCK
-            // blob from the APK signing block. Required by IzzyOnDroid, safe for Google Play.
-            dependenciesInfo {
-                includeInApk = false
-                includeInBundle = false
-            }
         }
     }
 
     compileOptions {
-        sourceCompatibility(JavaVersion.VERSION_21)
-        targetCompatibility(JavaVersion.VERSION_21)
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlin { jvmToolchain(21) }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
     buildFeatures {
         compose = true
-        resValues = true
+        buildConfig = true
+    }
+
+    packaging {
+        resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-
-    // Jetpack Compose
-    val composeBom = platform(libs.androidx.compose.bom)
+    val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
     implementation(composeBom)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
+    androidTestImplementation(composeBom)
 
-    debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.activity:activity-compose:1.9.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+
+    // OpenCV Android bindings used by the vision engines.
+    implementation("org.opencv:opencv:4.10.0")
+
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }
